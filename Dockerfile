@@ -34,3 +34,13 @@ RUN ALPINE_GLIBC_BASE_URL="https://github.com/sgerrand/alpine-pkg-glibc/releases
         "$ALPINE_GLIBC_I18N_PACKAGE_FILENAME"
 
 ENV LANG=C.UTF-8
+
+# create symlink for glibc locale
+RUN ln -s /usr/glibc-compat/bin/locale /bin/locale
+
+# glibc ldd is broken, to check libraries on a glibc binary you need to run gldd
+RUN echo $'#!/bin/sh\n\
+\n\
+LD_TRACE_LOADED_OBJECTS=1 /usr/glibc-compat/lib/ld-linux-x86-64.so.2 $1\n' > /usr/bin/gldd \
+    \
+    && chmod 755 /usr/bin/gldd
